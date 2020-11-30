@@ -1,9 +1,9 @@
 module.exports = {
-  base: 'https://github.com/fullyouth',
+  base: '/blogs/',
   title: 'fullyouth',
   description: '前端,个人博客,javascript',
   head: [
-    ['link', { rel: 'icon', href: 'favicon.ico' }]
+    ['link', { rel: 'icon', href: '/favicon.ico' }]
   ],
   themeConfig: {
     displayAllHeaders: true,
@@ -21,6 +21,7 @@ module.exports = {
       {
         title: 'js深入',
         // path: '/js', 
+        sidebarDepth: 1,
         children: [
           '/js/js之手写new.md',
         ]
