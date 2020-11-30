@@ -19,5 +19,5 @@ git commit -m 'deploy'
 # 如果发布到 https://<USERNAME>.github.io
 # git push -f git@github.com:fullyouth/fullyouth.github.io.git master
 
-# 如果发布到 https://<USERNAME>.github.io/<REPO>
+# 如果发布到 https://fullyouth.github.io/blogs
 git push -f git@github.com:fullyouth/blogs.git master:gh-pages 
