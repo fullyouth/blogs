@@ -24,6 +24,7 @@ module.exports = {
         sidebarDepth: 1,
         children: [
           '/js/js之手写new.md',
+          '/js/js之手写call-bind.md',
         ]
       }
     ]
