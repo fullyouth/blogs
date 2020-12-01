@@ -6,8 +6,8 @@ module.exports = {
     ['link', { rel: 'icon', href: '/favicon.ico' }]
   ],
   themeConfig: {
-    displayAllHeaders: true,
-    activeHeaderLinks: true,
+    displayAllHeaders: false,
+    activeHeaderLinks: false,
     nav: [
       { text: '首页', link: '/' },
       {

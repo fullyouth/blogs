@@ -1,5 +1,4 @@
 # call-bind
-
 ## call
 
 ```js
@@ -11,11 +10,13 @@
  */
 function.call(thisArg, arg1, arg2, ...)
 ```
-> 请注意： 
+::: tip 
 1.如果这个函数处于==非严格模式==下，则指定为 ==null 或 undefined== 时会自动替换为指向全局对象，==原始值会被包装==。
-2.若该方法没有返回值，则返回 undefined
 
-```js
+2.若该方法没有返回值，则返回 undefined
+:::
+代码实现 :tada:
+```js{5}
 Function.prototype.call = function (context, ...args) {
   if (context === null || context === undefined) {
     context = window
@@ -66,9 +67,11 @@ logThis.call(BigInt(132))
  */
 function.apply(thisArg, argsArray)
 ```
-> argsArray是 一个数组或者类数组对象 这是与call的区别
+::: tip 
+argsArray是 一个数组或者类数组对象 这是与call的区别
+:::
 apply
-```js
+```js{6}
 Function.prototype.apply = function (context, argsArray) {
   if (context === null || context === undefined) {
     context = window
