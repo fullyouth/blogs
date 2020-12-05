@@ -1,4 +1,4 @@
-# call-bind
+# js之手写call-apply-bind
 ## call
 
 ```js
@@ -100,3 +100,42 @@ sayName.apply(undefined, ['你好啊~，']);
 let ret2 = sayName.apply(person, ['你好啊~，']);
 console.log(ret2)
 ```
+
+## 3.bind
+### 3.1 概念
+bind方法创建一个新的函数
+在bind被调用时，这个新函数的this被指定为bind的第一个参数
+而其余参数将作为新的函数的参数，供调用使用
+
+### 3.2 语法
+```js
+function.bind(thisArg, arg1, arg2, ...)
+```
+### 3.3参数
+- thisArg: 
+调用绑定函数时作为`this`参数传递给目标函数的值。
+如果使用`new`运算符构造`绑定函数`，则忽略该值。
+当使用 `bind` 在 `setTimeout` 中创建一个函数（作为回调提供）时，作为 `thisArg` 传递的任何原始值都将转换为 `object`
+如果 `bind` 函数的参数列表为空，或者`thisArg`是`null`或`undefined`，`执行作用域的 this` 将被视为新函数的 `thisArg`
+
+- arg1, arg2, ...
+当目标函数被调用时，被预置入绑定函数的参数列表中的参数
+
+### 3.4返回值
+返回一个原函数的拷贝，并拥有指定的 `this` 值和初始参数
+
+### 3.5 实现 :tada:
+```js
+Function.prototype.bind = function (context, ...args) {
+  if (typeof this !== "function") {
+    throw new TypeError("Error");
+  }
+  let self = this
+  let fBound = function (...args2) {
+    return self.call(this instanceof self ? this : context, ...args, ...args2)
+  }
+  fBound.prototype = Object.create(self.prototype)
+  return fBound
+}
+```
+
