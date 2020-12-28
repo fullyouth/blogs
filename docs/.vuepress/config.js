@@ -35,6 +35,15 @@ module.exports = {
         children: [
           '/js/js之手写new.md',
           '/js/js之手写call-apply-bind.md',
+          '/js/js之手写防抖函数.md',
+        ]
+      },
+      {
+        title: '网络',
+        // path: '/js', 
+        sidebarDepth: 1,
+        children: [
+          '/network/浏览器的缓存策略.md'
         ]
       }
     ]

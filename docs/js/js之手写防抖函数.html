@@ -1,0 +1,64 @@
+<html>
+
+<head>
+  <title>防抖函数</title>
+  <style>
+    #container {
+      width: 100%;
+      height: 200px;
+      line-height: 200px;
+      text-align: center;
+      color: #fff;
+      background-color: #444;
+      font-size: 30px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container"></div>
+</body>
+<script>
+  var count = 1;
+  var container = document.getElementById('container');
+
+  function getUserAction(e) {
+    container.innerHTML = count++;
+    console.log(this)
+    console.log(e)
+  };
+
+  function debounce(fn, wait, options) {
+    let timeout;
+    let { immediate } = options
+    const debounced = function (...args) {
+      let ret
+      let context = this;
+      if (timeout) clearTimeout(timeout);
+      if (immediate) {
+        immediate = false
+        ret = fn.apply(context, args)
+      }
+      else {
+        timeout = setTimeout(function () {
+          fn.apply(context, args)
+          immediate = true
+        }, wait);
+      }
+      return ret
+    }
+    debounced.cancel = function () {
+      clearTimeout(timeout);
+      timeout = null;
+    };
+    return debounced
+  }
+
+
+  container.onmousemove = debounce(getUserAction, 1000, {
+    immediate: true
+  });
+// container.onmousemove = getUserAction
+</script>
+
+</html>
