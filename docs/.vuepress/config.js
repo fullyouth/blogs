@@ -31,7 +31,6 @@ module.exports = {
       },
       {
         title: 'js深入',
-        // path: '/js', 
         sidebarDepth: 1,
         children: [
           '/js/js之手写new.md',
@@ -42,10 +41,16 @@ module.exports = {
       },
       {
         title: '网络',
-        // path: '/js', 
         sidebarDepth: 1,
         children: [
           '/network/浏览器的缓存策略.md'
+        ]
+      },
+      {
+        title: '面试题',
+        sidebarDepth: 1,
+        children: [
+          '/面试题/总结.md'
         ]
       }
     ]
