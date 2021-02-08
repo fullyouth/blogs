@@ -52,6 +52,13 @@ module.exports = {
         children: [
           '/面试题/总结.md'
         ]
+      },
+      {
+        title: '设计模式',
+        sidebarDepth: 1,
+        children: [
+          '/design-pattern/概览.md'
+        ]
       }
     ]
   }
