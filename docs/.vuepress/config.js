@@ -59,6 +59,14 @@ module.exports = {
         children: [
           '/design-pattern/概览.md'
         ]
+      },
+      {
+        title: '算法',
+        sidebarDepth: 1,
+        children: [
+          '/arithmetic/算法题.md',
+          '/arithmetic/编程题.md',
+        ]
       }
     ]
   }
