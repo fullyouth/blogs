@@ -36,7 +36,9 @@ module.exports = {
           '/js/js之手写new.md',
           '/js/js之手写call-apply-bind.md',
           '/js/js之手写防抖函数.md',
-          '/js/js之手写继承.md'
+          '/js/js之手写继承.md',
+          '/js/js之手写instanceof.md',
+          '/js/js之手写clone.md'
         ]
       },
       {
