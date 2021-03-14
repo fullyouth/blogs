@@ -1,3 +1,4 @@
+# js之手写instanceof
 参考ecma文档： http://yanhaijing.com/es5/#331
 ```js
 F.HasInstance(V)

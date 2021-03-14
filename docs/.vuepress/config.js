@@ -38,7 +38,8 @@ module.exports = {
           '/js/js之手写防抖函数.md',
           '/js/js之手写继承.md',
           '/js/js之手写instanceof.md',
-          '/js/js之手写clone.md'
+          '/js/js之手写clone.md',
+          '/js/js之手写promise.md',
         ]
       },
       {
@@ -52,7 +53,8 @@ module.exports = {
         title: '面试题',
         sidebarDepth: 1,
         children: [
-          '/面试题/总结.md'
+          // '/面试题/总结.md',
+          '/面试题/面试题汇总.md',
         ]
       },
       {

@@ -1,0 +1,23 @@
+<body>
+
+</body>
+
+<script>
+  /**
+   * 宏任务
+   * 渲染事件
+   * 1. 渲染事件(DOM解析、布局、绘制)
+   * 2. 用户交互(鼠标点击、页面缩放)
+   * 3. JavaScript脚本执行
+   * 4. 网络请求
+   * 5. 文件读写
+  */
+  document.body.style = 'background:red';
+  document.body.style = 'background:yellow';
+  document.body.style = 'background:blue';
+  setTimeout(function () {
+    document.body.style = 'background:yellow'
+  }, 200)
+  document.body.style = 'background:red';
+  
+</script>
