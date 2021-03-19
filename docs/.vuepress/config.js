@@ -71,6 +71,13 @@ module.exports = {
           '/arithmetic/算法题.md',
           '/arithmetic/编程题.md',
         ]
+      },
+      {
+        title: 'node',
+        sidebarDepth: 1,
+        children: [
+          '/node/模块机制.md'
+        ]
       }
     ]
   }
