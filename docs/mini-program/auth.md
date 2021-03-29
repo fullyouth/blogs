@@ -77,16 +77,240 @@ cloudID | 敏感数据对应的云 ID，开通云开发的小程序才会返回�
 2. 临时登录凭证 code 只能使用一次
 :::
 
-## 4. 授权最佳实践
+## 4. 情景分析
+
+> 情景1: 新用户
+
+需要注册：wx.getUserInfo => userInfo / iv / encryptedData  
+登录 wx.login => code => token / session key  
+服务端根据session key + iv + encryptedData => unionid / openid  
+
+> 情景2: 老用户，但是微信没有缓存信息
+
+服务端需要知道是谁 这里的标识是token  
+登录 wx.login => code => token / session key  
+如果需要更新用户信息，就需要重新wx.getUserInfo => userInfo / iv / encryptedData
+
+> 情景3：老用户，有缓存信息，但是token失效
+
+重新获取token的过程  wx.login => code => token / session key  
+
+## 5. 最佳实践
+我们手上的工具
+1. 获取用户信息
+   流程：用户授权 => getUserInfo => userInfo / rawData(iv / encryptedData)
+2. 获取token
+   流程：wx.login => code => openId | session key
+3. 获取unionID 
+   流程：获取token(session) + 获取用户信息(rawData) => unionID 
+4. openId
+   流程：获取token
+  
+> 注册   
+
+  获取token + 获取unionID
+
+  方案：一个专门的注册页面来做,正常体验
+  ```jsx
+  <AtButton
+    type='primary'
+    lang='zh_CN'
+    openType='getUserInfo'
+    onGetUserInfo={this.handleGetUserInfo}
+  >
+    立即登录
+  </AtButton>
+  ```
+  ```js
+  handleGetUserInfo(res) {
+    const loginParams = res.detail
+    // 获取 userinfo rawData 以及校验信息 iv, encryptedData  
+    // signature = hash(rawData + session key)  session key下面可以获取到
+    const { iv, encryptedData, rawData, signature, userInfo } = loginParams
+    if (!iv || !encryptedData) {
+      Taro.showModal({
+        title: '授权提示',
+        content: `需要您的授权才能购物`,
+        showCancel: false,
+        confirmText: '知道啦'
+      })
+      return
+    }
+    // 获取code 服务端可以用拿到新的session key 来解密
+    let code = ''
+    try {
+      const result = await Taro.login()
+      code = result.code
+    } catch (e) {
+      console.log(e)
+      return Taro.showToast({
+        title: '微信授权失败，可能微信版本过低',
+        icon: 'none'
+      })
+    }
+    // 注册 校验和解密用户信息 
+    let params = {
+     code,
+     iv,
+     encrypted_data: encryptedData,
+     rawData,
+     signature,
+     userInfo
+   }
+    const { access_token, is_user, nickName, union_id, open_id } = await api.wx.login(params)
+    // ...
+  }
+  ```
+
+> 登录  
+
+  获取token  
+  ```js
+  async function autoLogin() {
+    const { code } = await Taro.login()
+    const { access_token } = await api.wx.login({ code })
+    if (!access_token) throw new Error(`token is not defined: ${access_token}`)
+    return access_token
+  }
+  ```
+
+> token失效    
+
+  获取token  
+  方案：队列 或者 缓存，做到静默登录
+  ```js
+  function makeReq(config) {
+    // ...
+    return new Promise((resolve, reject) => {
+      showLoading('加载中')
+      Taro.request(options)
+      .then(async (res) => {
+        if (res.data.code >= 200 && res.data.code < 300) {
+          resolve(res.data)
+        } else if(res.data.code === 401) {
+          await autoLogin()
+          const data = await makeReq(config)
+          resolve(data)
+        } else {
+          showToast(res.data.msg);
+          reject(err)
+        }
+      }
+      .catch(err => {
+        console.log(err);
+        showToast("there is a mistake");
+        reject()
+      })
+      .finally(() => {
+        hideLoading(')
+      })
+    })
+  }
+  // 以上有个弊端，可能会多次调用
+  // 1. 可以添加个debounce + 缓存
+  let debounceTimer
+  let cachePromise
+  async function proxyMakeReq(config) {
+    // ...
+    if (!debounceTimer) {
+      debounceTimer = setTimeout(() => {
+        debounceTimer = null
+      }, 1000 * 10)
+      cachePromise = makeReq(config).then((res) => {
+        cachePromise = res
+      })
+    }
+    return cachePromise
+  }
+  ```
+  队列
+  ```js
+class Queue {
+  constructor(namespace) {
+    this.isPending = false
+    this.namespace = namespace
+    this.queue = []
+    this.length = 0
+  }
+  add(item) {
+    this.queue.push(item)
+    this.length++
+  }
+  next() {
+    const { makeReq, resolve, reject } = this.queue.unshift()
+    makeReq()
+    .then((res) => {
+      resolve(res)
+    })
+    .catch((err) => {
+      reject(err)
+    })
+    .finally(() => {
+      this.length--
+    })
+  }
+  getLength() {
+    return this.length
+  }
+  startPending() {
+    this.isPending = true
+  }
+  stopPending() {
+    this.isPending = false
+  }
+  autoRun() {
+    while (this.length > 0) {
+      this.next()
+    }
+  }
+}
+
+const reqQueue = new Queue('reqQueue')
+
+function makeReq(config) {
+    // ...
+    return new Promise((resolve, reject) => {
+      showLoading('加载中')
+      Taro.request(options)
+      .then(async (res) => {
+        if (res.data.code >= 200 && res.data.code < 300) {
+          resolve(res.data)
+        } else if(res.data.code === 401) {
+           if (reqQueue.isPending) {
+            reqQueue.add({ makeReq: () => makeReq(config), resolve, reject })
+            return
+          } else {
+            autoLogin().then(res => {
+              reqQueue.stopPending()
+              console.log(reqQueue.namespace, reqQueue.queue)
+              reqQueue.autoRun()
+            })
+          }
+        } else {
+          showToast(res.data.msg);
+          reject(err)
+        }
+      }
+      .catch(err => {
+        console.log(err);
+        showToast("there is a mistake");
+        reject()
+      })
+      .finally(() => {
+        hideLoading(')
+      })
+    })
+
+  }
+  ```
+
+> 更新用户信息  
+
+  同注册, 可使用一个按钮，让用户主动更新，这样可以不需要每次都调用getuserinfo
+  
+
+
 https://juejin.cn/post/6844903641820708871  
 http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html  
 https://mp.weixin.qq.com/s/JBdC-G9MwaptFjQeD9ujeA
-
-## 问题
-- `access token` `session key`过期解决方案  是获取用户敏感信息的  
-初次注册和获取session key，后面不需要每次重新获取新的吧， 那么这个应该不需要关注是否过期，可以用户手动点击更新按钮，wx.login 重新获取session key来更新用户信息  
-access token是服务器调用微信使用的，小程序不需要关注他的存在吧
-- 为什么是使用`access token`标识的用户身份，不是`open id` 或者 `union id` 吗,如果害怕openid传输过程有危险，可以使用其他加密方案吧 ， 客户端不需要知道access token的存在
-
-这样的话，日常使用只需要授权地址，相册等其他权限 就可以了
 
