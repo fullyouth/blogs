@@ -76,7 +76,15 @@ module.exports = {
         title: 'node',
         sidebarDepth: 1,
         children: [
-          '/node/模块机制.md'
+          '/node/模块机制.md',
+          '/node/进程.md',
+        ]
+      },
+      {
+        title: '微信小程序',
+        sidebarDepth: 1,
+        children: [
+          '/mini-program/auth.md'
         ]
       }
     ]
