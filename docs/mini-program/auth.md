@@ -179,6 +179,7 @@ cloudID | 敏感数据对应的云 ID，开通云开发的小程序才会返回�
   获取token  
   方案：队列 或者 缓存，做到静默登录
   ```js
+  @withCache(10)
   function makeReq(config) {
     // ...
     return new Promise((resolve, reject) => {
@@ -208,20 +209,31 @@ cloudID | 敏感数据对应的云 ID，开通云开发的小程序才会返回�
   }
   // 以上有个弊端，可能会多次调用
   // 1. 可以添加个debounce + 缓存
-  let debounceTimer
-  let cachePromise
-  async function proxyMakeReq(config) {
-    // ...
-    if (!debounceTimer) {
-      debounceTimer = setTimeout(() => {
-        debounceTimer = null
-      }, 1000 * 10)
-      cachePromise = makeReq(config).then((res) => {
-        cachePromise = res
-      })
+  // return promise or value
+function withCache(delay) {
+  let cachePromise = null
+  let timer = ''
+  return function(target, name, descriptor) {
+    let prevVal = descriptor.value
+    descriptor.value = function(...args) {
+      if (!timer) {
+        timer = setTimeout(() => {
+          timer = ''
+        }, delay * 1000)
+        cachePromise = prevVal
+          .call(this, ...args)
+          .then((res) => {
+            cachePromise = res
+          })
+          .catch((err) => {})
+        return cachePromise
+      }
+
+      return cachePromise
     }
-    return cachePromise
+    return descriptor
   }
+}
   ```
   队列
   ```js
@@ -237,17 +249,17 @@ class Queue {
     this.length++
   }
   next() {
-    const { makeReq, resolve, reject } = this.queue.unshift()
+    const { makeReq, resolve, reject } = this.queue.shift()
     makeReq()
-    .then((res) => {
-      resolve(res)
-    })
-    .catch((err) => {
-      reject(err)
-    })
-    .finally(() => {
-      this.length--
-    })
+      .then((res) => {
+        resolve(res)
+      })
+      .catch((err) => {
+        reject(err)
+      })
+      .finally(() => {
+        this.length--
+      })
   }
   getLength() {
     return this.length
@@ -277,6 +289,7 @@ function makeReq(config) {
           resolve(res.data)
         } else if(res.data.code === 401) {
            if (reqQueue.isPending) {
+             reqQueue.startPending()
             reqQueue.add({ makeReq: () => makeReq(config), resolve, reject })
             return
           } else {
