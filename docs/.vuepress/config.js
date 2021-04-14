@@ -26,7 +26,8 @@ module.exports = {
         sidebarDepth: 1,
         children: [
           '/js基础/继承.md',
-          '/js基础/模块化的区别.md'
+          '/js基础/模块化的区别.md',
+          '/js基础/箭头函数.md'
         ]
       },
       {
