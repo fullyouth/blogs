@@ -1,0 +1,35 @@
+<script src='./docCookies.js'></script>
+<script>
+  // 服务器可以使用 Set-Cookie选项保存cookie
+  // cookie的过期时间、域名、路径、有效期、适用站点 都可以指定
+
+  // 生命周期
+  /**
+   * 
+   * 1. 会话期，浏览器关闭就会自动删除
+   * 2. 持久性Cookie取决于过期时间Expires 或者有效期 Max-Age
+   * 
+   * tips 当Cookie的过期时间被设定时，设定的日期和时间只与客户端相关，而不是服务端。
+   * */
+
+  // 安全性
+  /**
+   * Secure属性和HttpOnly属性
+   * 标记为 Secure 的 Cookie 只应通过被 HTTPS 协议加密过的请求发送给服务端
+   * JavaScript Document.cookie API 无法访问带有 HttpOnly 属性的cookie  防止XSS攻击 ,通过 JavaScript 创建的 Cookie 不能包含 HttpOnly 标志
+   * 
+   */
+
+   // 作用域
+   /**
+    * Domain 和 Path
+    * Domain 指定了哪些主机可以接受 Cookie。如果不指定，默认为 origin，不包含子域名
+    * 如果指定了Domain，则一般包含子域名
+   */
+
+
+   docCookies.setItem('name', 'zhanghaoqi', null, null, null, true)
+   const name = docCookies.getItem('name')
+    console.log(name)
+
+</script>

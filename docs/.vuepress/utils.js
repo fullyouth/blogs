@@ -15,6 +15,10 @@ const menus = [
     path: '/network',
   },
   {
+    title: '浏览器',
+    path: '/browser',
+  },
+  {
     title: '面试题',
     path: '/面试题',
   },
