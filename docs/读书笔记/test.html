@@ -1,0 +1,20 @@
+<script>
+  async function main() {
+    function aa() {
+      let c = {}
+      c.split()
+    }
+
+    async function getData() {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(1)
+        }, 1000)
+      })
+    }
+    const a = await getData()
+    console.log(a)
+    aa()
+  }
+  main()
+</script>
